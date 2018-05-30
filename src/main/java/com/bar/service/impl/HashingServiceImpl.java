@@ -27,8 +27,7 @@ import java.util.Random;
  */
 public class HashingServiceImpl implements HashingService {
 
-
-
+    public static final String HASHING_ALGO = "SHA-256";
 
     private static int BUFFER_SIZE = 1024;
     private static final Random RANDOM = new SecureRandom();
@@ -47,7 +46,6 @@ public class HashingServiceImpl implements HashingService {
     public String getHash(String algorithmName, byte[] text) throws Exception {
         MessageDigest digest = MessageDigest.getInstance(algorithmName);
         byte[] hash = digest.digest(text);
-       // System.out.println(hash);
         String hashToReturn = new String(Hex.encode(hash));
         return hashToReturn;
     }
@@ -73,33 +71,25 @@ public class HashingServiceImpl implements HashingService {
     }
 
     @Override
-    public String[] getHashAndSalt(String text) throws Exception {
-        return new String[0];
+    public String[] getHashAndSalt(String  text) throws Exception {
+        return getHashAndSalt(HASHING_ALGO, text.getBytes("UTF-8"));
     }
+
 
     @Override
-    public boolean isValid(String algorithm, String plainPassword, String salt, String hashedPassword) {
-        return  isValid( algorithm, plainPassword.getBytes(), salt.getBytes(),hashedPassword.getBytes());
-    }
-
-
-    public boolean isValid(String algorithm, byte[] plainPassword, byte[] salt, byte[] hashedPassword) {
+    public boolean isValid(String algorithm, String plainPassword, String salt, String  hashedPassword) {
         String newHash ="";
         try {
             if (salt == null) {
-                newHash = getHash(algorithm, plainPassword);
+                newHash = getHash(algorithm, plainPassword.getBytes("UTF-8"));
             } else {
-                newHash = getHash(algorithm, plainPassword, salt);
+                newHash = getHash(algorithm, plainPassword.getBytes("UTF-8"), Hex.decode(salt));
             }
         } catch (Exception e){
             e.printStackTrace();
             return false;
         }
-
-
-
-
-        return  Arrays.areEqual(newHash.getBytes(), hashedPassword);
+        return  Arrays.areEqual(newHash.getBytes(), hashedPassword.getBytes());
     }
 
 
